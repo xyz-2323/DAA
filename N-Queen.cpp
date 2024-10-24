@@ -1,84 +1,118 @@
-class Queen:
-    # Initialize the board with size N
-    def __init__(self, n):
-        self.N = n
-        self.board = [[0] * n for _ in range(n)]
+#include <iostream>
+#include <vector>
+using namespace std;
 
-    # Display the board
-    def disp_board(self):
-        for row in self.board:
-            for col in row:
-                if col == 1:
-                    print(" ", end=" ")  # Queen emoji
-                else:
-                    print("❌", end=" ")  # Cross mark emoji
-            print()  # Newline after each row
-        print()
+class Queen {
+private:
+    int N;
+    vector<vector<int>> board;
 
-    # Check if the queen can be attacked
-    def is_attack(self, row, col):
-        # Check this row on the left
-        for i in range(col):
-            if self.board[row][i] == 1:
-                return True
+public:
+    // Initialize the board with size N
+    Queen(int n) : N(n), board(n, vector<int>(n, 0)) {}
 
-        # Check upper diagonal on the left
-        for i, j in zip(range(row, -1, -1), range(col, -1, -1)):
-            if self.board[i][j] == 1:
-                return True
+    // Display the board
+    void disp_board() {
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
+                if (board[i][j] == 1) {
+                    cout << " Q "; // Queen symbol
+                } else {
+                    cout << " ❌ "; // Cross mark emoji
+                }
+            }
+            cout << endl;
+        }
+        cout << endl;
+    }
 
-        # Check lower diagonal on the left
-        for i, j in zip(range(row, self.N, 1), range(col, -1, -1)):
-            if self.board[i][j] == 1:
-                return True
+    // Check if the queen can be attacked
+    bool is_attack(int row, int col) {
+        // Check this row on the left
+        for (int i = 0; i < col; i++) {
+            if (board[row][i] == 1) {
+                return true;
+            }
+        }
 
-        return False
+        // Check upper diagonal on the left
+        for (int i = row, j = col; i >= 0 && j >= 0; i--, j--) {
+            if (board[i][j] == 1) {
+                return true;
+            }
+        }
 
-    # Solve the N-Queens problem
-    def N_queen(self, col):
-        if col >= self.N:
-            return True
+        // Check lower diagonal on the left
+        for (int i = row, j = col; i < N && j >= 0; i++, j--) {
+            if (board[i][j] == 1) {
+                return true;
+            }
+        }
 
-        for i in range(self.N):
-            if not self.is_attack(i, col):
-                self.board[i][col] = 1  # Place the queen
+        return false;
+    }
 
-                if self.N_queen(col + 1):  # Recur to place the rest of the queens
-                    return True
+    // Solve the N-Queens problem
+    bool N_queen(int col) {
+        if (col >= N) {
+            return true;
+        }
 
-                # Backtrack if placing queen in this position doesn't work
-                self.board[i][col] = 0
+        for (int i = 0; i < N; i++) {
+            if (!is_attack(i, col)) {
+                board[i][col] = 1; // Place the queen
 
-        return False
+                if (N_queen(col + 1)) { // Recur to place the rest of the queens
+                    return true;
+                }
 
-    # Get the positions of the queens
-    def queen_positions(self):
-        positions = []
-        for i in range(self.N):
-            for j in range(self.N):
-                if self.board[i][j] == 1:
-                    positions.append((i, j))
-        return positions
+                // Backtrack if placing queen in this position doesn't work
+                board[i][col] = 0;
+            }
+        }
 
+        return false;
+    }
 
-# Input number of queens
-N = int(input("Enter the number of queens: "))
+    // Get the positions of the queens
+    vector<pair<int, int>> queen_positions() {
+        vector<pair<int, int>> positions;
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
+                if (board[i][j] == 1) {
+                    positions.push_back({i, j});
+                }
+            }
+        }
+        return positions;
+    }
+};
 
-# Create Queen object
-Q = Queen(N)
+int main() {
+    int N;
+    cout << "Enter the number of queens: ";
+    cin >> N;
 
-print("Initial State:")
-Q.disp_board()
+    // Create Queen object
+    Queen Q(N);
 
-# Solve the N-Queens problem
-if Q.N_queen(0):
-    print("\nFinal State:")
-    Q.disp_board()
+    cout << "Initial State:" << endl;
+    Q.disp_board();
 
-    # Get and display the positions of the queens
-    positions = Q.queen_positions()
-    print("\nPositions of the queens:")
-    for idx, pos in enumerate(positions):
-        print(f"Queen {idx + 1}: Row {pos[0] + 1}, Column {pos[1] + 1}")
-else:
-    print("No solution exists for the given number of queens.")
+    // Solve the N-Queens problem
+    if (Q.N_queen(0)) {
+        cout << "\nFinal State:" << endl;
+        Q.disp_board();
+
+        // Get and display the positions of the queens
+        vector<pair<int, int>> positions = Q.queen_positions();
+        cout << "\nPositions of the queens:" << endl;
+        for (int i = 0; i < positions.size(); i++) {
+            cout << "Queen " << i + 1 << ": Row " << positions[i].first + 1 << ", Column " << positions[i].second + 1 << endl;
+        }
+    } else {
+        cout << "No solution exists for the given number of queens." << endl;
+    }
+
+    return 0;
+}
